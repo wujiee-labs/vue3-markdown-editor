@@ -8,12 +8,15 @@ type SegmenterConstructor = new (
 const Segmenter = (Intl as typeof Intl & { Segmenter?: SegmenterConstructor }).Segmenter
 const graphemeSegmenter = Segmenter ? new Segmenter(undefined, { granularity: 'grapheme' }) : undefined
 
-export function countGraphemes(value: string): number {
+export function countWujieeGraphemes(value: string): number {
   return graphemeSegmenter
     ? Array.from(graphemeSegmenter.segment(value)).length
     : Array.from(value).length
 }
 
-export function countMarkdownCharacters(markdown: string): number {
-  return countGraphemes(markdownToText(markdown))
+export function countWujieeMarkdownCharacters(markdown: string): number {
+  return countWujieeGraphemes(markdownToText(markdown))
 }
+
+export const countGraphemes = countWujieeGraphemes
+export const countMarkdownCharacters = countWujieeMarkdownCharacters

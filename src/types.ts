@@ -87,7 +87,7 @@ export interface InsertPayload {
   block?: boolean
 }
 
-export const defaultToolbar: ToolbarItemName[] = [
+export const wujieeDefaultToolbar: ToolbarItemName[] = [
   'heading',
   'bold',
   'italic',
@@ -104,7 +104,7 @@ export const defaultToolbar: ToolbarItemName[] = [
   'horizontal-rule'
 ]
 
-export const defaultToolbarConfig: Record<ToolbarControlName, boolean> = {
+export const wujieeDefaultToolbarConfig: Record<ToolbarControlName, boolean> = {
   heading: true,
   bold: true,
   italic: true,
@@ -125,7 +125,7 @@ export const defaultToolbarConfig: Record<ToolbarControlName, boolean> = {
   fullscreen: true
 }
 
-export const defaultEditorColors: EditorColorConfig = {
+export const wujieeDefaultEditorColors: EditorColorConfig = {
   background: '#ffffff',
   backgroundSoft: '#f6f7f9',
   text: '#1f2937',
@@ -137,3 +137,7 @@ export const defaultEditorColors: EditorColorConfig = {
   toolbarBackground: '#f6f7f9',
   focusRing: 'rgb(37 99 235 / 0.24)'
 }
+
+export const defaultToolbar = wujieeDefaultToolbar
+export const defaultToolbarConfig = wujieeDefaultToolbarConfig
+export const defaultEditorColors = wujieeDefaultEditorColors

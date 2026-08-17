@@ -10,7 +10,7 @@ const parser = new MarkdownIt({
 
 const tableWidthsPattern = /<!--\s*wujiee-table-widths:\s*([\d.,\s]+)\s*-->/gi
 
-function extractTableWidths(source: string, preserveMarkers = false): { source: string; widths: number[][] } {
+function wujieeExtractTableWidths(source: string, preserveMarkers = false): { source: string; widths: number[][] } {
   const widths: number[][] = []
   const cleaned = source.replace(tableWidthsPattern, (_match, values: string) => {
     const parsed = values.split(',')
@@ -23,7 +23,7 @@ function extractTableWidths(source: string, preserveMarkers = false): { source: 
   return { source: cleaned, widths }
 }
 
-function applyTableWidths(html: string, tables: number[][]): string {
+function wujieeApplyTableWidths(html: string, tables: number[][]): string {
   let output = html
   tables.forEach((widths, index) => {
     const total = widths.reduce((sum, width) => sum + width, 0)
@@ -41,7 +41,7 @@ function applyTableWidths(html: string, tables: number[][]): string {
 
     const tableContentStart = tableStart + '<table>'.length
     const tableContent = output.slice(tableContentStart, tableEnd)
-    const replacement = `<table data-wmd-resizable-table="true"><colgroup>${columns}</colgroup>${tableContent}</table>`
+    const replacement = `<table data-wujiee-md-resizable-table="true"><colgroup>${columns}</colgroup>${tableContent}</table>`
     output = output.slice(0, tableStart) + replacement + output.slice(tableEnd + '</table>'.length, markerStart) + output.slice(markerStart + markerHtml.length)
   })
   return output.replace(/<p>WUJIEE_TABLE_WIDTHS_TOKEN_\d+<\/p>/g, '')
@@ -63,22 +63,22 @@ parser.renderer.rules.link_open = (tokens, index, options, env, self) => {
     : self.renderToken(tokens, index, options)
 }
 
-export function renderMarkdown(source: string): string {
+export function renderWujieeMarkdown(source: string): string {
   if (!source.trim()) return ''
-  const extracted = extractTableWidths(source, true)
+  const extracted = wujieeExtractTableWidths(source, true)
   const html = parser.render(extracted.source).replace(
     /<li>\[([ xX])\]\s/g,
-    (_, checked: string) => `<li class="task-list-item"><input class="task-list-checkbox" type="checkbox" disabled${checked.toLowerCase() === 'x' ? ' checked' : ''}> `
+    (_, checked: string) => `<li class="wujiee-md-task-list-item"><input class="wujiee-md-task-list-checkbox" type="checkbox" disabled${checked.toLowerCase() === 'x' ? ' checked' : ''}> `
   )
-  return applyTableWidths(html, extracted.widths)
+  return wujieeApplyTableWidths(html, extracted.widths)
 }
 
-function tokenText(tokens: Token[]): string[] {
+function wujieeTokenText(tokens: Token[]): string[] {
   const lines: string[] = []
 
   for (const token of tokens) {
     if (token.type === 'inline' && token.children) {
-      lines.push(tokenText(token.children).join(''))
+      lines.push(wujieeTokenText(token.children).join(''))
     } else if (['text', 'code_inline', 'code_block', 'fence'].includes(token.type)) {
       lines.push(token.content.replace(/^\[[ xX]\]\s+/, ''))
     } else if (token.type === 'image') {
@@ -91,15 +91,18 @@ function tokenText(tokens: Token[]): string[] {
   return lines
 }
 
-export function markdownToText(source: string): string {
+export function wujieeMarkdownToText(source: string): string {
   if (!source.trim()) return ''
-  const blocks = parser.parse(extractTableWidths(source).source, {})
+  const blocks = parser.parse(wujieeExtractTableWidths(source).source, {})
   const lines: string[] = []
 
   for (const token of blocks) {
-    if (token.type === 'inline' && token.children) lines.push(tokenText(token.children).join(''))
+    if (token.type === 'inline' && token.children) lines.push(wujieeTokenText(token.children).join(''))
     else if (token.type === 'code_block' || token.type === 'fence') lines.push(token.content.replace(/\n$/, ''))
   }
 
   return lines.join('\n')
 }
+
+export const renderMarkdown = renderWujieeMarkdown
+export const markdownToText = wujieeMarkdownToText

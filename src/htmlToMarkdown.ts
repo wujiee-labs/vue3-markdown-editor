@@ -26,7 +26,7 @@ turndown.addRule('taskCheckbox', {
   }
 })
 
-function tableCellText(cell: Element): string {
+function wujieeTableCellText(cell: Element): string {
   return (cell.textContent || '')
     .replace(/\s+/g, ' ')
     .trim()
@@ -39,7 +39,7 @@ turndown.addRule('table', {
     const rows = Array.from(node.querySelectorAll('tr'))
       .map(row => Array.from(row.children)
         .filter(cell => cell.nodeName === 'TH' || cell.nodeName === 'TD')
-        .map(tableCellText))
+        .map(wujieeTableCellText))
       .filter(row => row.length)
     if (!rows.length) return ''
 
@@ -61,6 +61,8 @@ turndown.addRule('table', {
   }
 })
 
-export function htmlToMarkdown(html: string): string {
+export function convertWujieeHtmlToMarkdown(html: string): string {
   return turndown.turndown(html).replace(/\n{3,}/g, '\n\n').trim()
 }
+
+export const htmlToMarkdown = convertWujieeHtmlToMarkdown

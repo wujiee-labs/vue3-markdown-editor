@@ -22,7 +22,7 @@ describe('renderMarkdown', () => {
 
   it('renders task list checkboxes', () => {
     const html = renderMarkdown('- [ ] todo\n- [x] done')
-    expect(html).toContain('class="task-list-checkbox"')
+    expect(html).toContain('class="wujiee-md-task-list-checkbox"')
     expect(html).toContain('disabled checked')
   })
 

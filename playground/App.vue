@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import {
-  defaultEditorColors,
-  defaultToolbarConfig,
-  htmlToMarkdown,
-  MarkdownEditor,
-  renderMarkdown
+  wujieeDefaultEditorColors,
+  wujieeDefaultToolbarConfig,
+  convertWujieeHtmlToMarkdown,
+  WujieeMarkdownEditor,
+  renderWujieeMarkdown
 } from '../src'
 
 const dark = ref(false)
@@ -14,7 +14,7 @@ const valueFormat = ref<'markdown' | 'html'>('markdown')
 const bordered = ref(true)
 const content = ref(`# WUJIEE Markdown Editor
 
-这是一个轻量、开源、可换肤的 **Vue 3 Markdown 编辑器**。
+这是一个轻量、源码可用、可换肤的 **Vue 3 Markdown 编辑器**。
 
 - 支持表单里的 \`v-model\`
 - 支持编辑、分栏和预览
@@ -32,7 +32,7 @@ const content = ref(`# WUJIEE Markdown Editor
 const installCode = 'pnpm add @wujiee/vue3-markdown-editor'
 const usageCode = `<script setup lang="ts">
 import { ref } from 'vue'
-import { MarkdownEditor } from '@wujiee/vue3-markdown-editor'
+import { WujieeMarkdownEditor } from '@wujiee/vue3-markdown-editor'
 import '@wujiee/vue3-markdown-editor/style.css'
 
 const form = ref({ content: '' })
@@ -46,7 +46,7 @@ async function uploadImage(file: File) {
 <\/script>
 
 <template>
-  <MarkdownEditor
+  <WujieeMarkdownEditor
     v-model="form.content"
     name="content"
     editor-type="wysiwyg"
@@ -79,8 +79,8 @@ interface EditorColorConfig {
   focusRing: string
 }`
 
-const toolbarConfigCode = JSON.stringify(defaultToolbarConfig, null, 2)
-const colorsCode = JSON.stringify(defaultEditorColors, null, 2)
+const toolbarConfigCode = JSON.stringify(wujieeDefaultToolbarConfig, null, 2)
+const colorsCode = JSON.stringify(wujieeDefaultEditorColors, null, 2)
 
 const livePayload = computed(() => JSON.stringify({
   field: 'content',
@@ -109,43 +109,43 @@ function submit() {
 
 function toggleValueFormat() {
   if (valueFormat.value === 'markdown') {
-    content.value = renderMarkdown(content.value)
+    content.value = renderWujieeMarkdown(content.value)
     valueFormat.value = 'html'
   } else {
-    content.value = htmlToMarkdown(content.value)
+    content.value = convertWujieeHtmlToMarkdown(content.value)
     valueFormat.value = 'markdown'
   }
 }
 </script>
 
 <template>
-  <main class="demo" :data-theme="dark ? 'dark' : 'light'">
-    <section class="demo__card">
-      <header class="demo__header">
+  <main class="wujiee-demo" :data-theme="dark ? 'dark' : 'light'">
+    <section class="wujiee-demo__card">
+      <header class="wujiee-demo__header">
         <div>
-          <p class="demo__eyebrow">@wujiee/vue3-markdown-editor</p>
+          <p class="wujiee-demo__eyebrow">@wujiee/vue3-markdown-editor</p>
           <h1>Markdown 在线编辑器</h1>
           <p>不绑定 UI 框架，适合直接放入业务表单。</p>
         </div>
-        <div class="demo__actions">
-          <button type="button" class="demo__theme" @click="editorType = editorType === 'wysiwyg' ? 'markdown' : 'wysiwyg'">
+        <div class="wujiee-demo__actions">
+          <button type="button" class="wujiee-demo__theme" @click="editorType = editorType === 'wysiwyg' ? 'markdown' : 'wysiwyg'">
             {{ editorType === 'wysiwyg' ? '切换 Markdown 源码' : '切换所见即所得' }}
           </button>
-          <button type="button" class="demo__theme" @click="bordered = !bordered">
+          <button type="button" class="wujiee-demo__theme" @click="bordered = !bordered">
             {{ bordered ? '切换无边框' : '显示边框' }}
           </button>
-          <button type="button" class="demo__theme" @click="toggleValueFormat">
+          <button type="button" class="wujiee-demo__theme" @click="toggleValueFormat">
             当前保存：{{ valueFormat === 'markdown' ? 'Markdown' : 'HTML' }}
           </button>
-          <button type="button" class="demo__theme" @click="dark = !dark">
+          <button type="button" class="wujiee-demo__theme" @click="dark = !dark">
             {{ dark ? '切换浅色' : '切换深色' }}
           </button>
         </div>
       </header>
 
       <form @submit.prevent="submit">
-        <label class="demo__label" for="content">项目详情</label>
-        <MarkdownEditor
+        <label class="wujiee-demo__label" for="content">项目详情</label>
+        <WujieeMarkdownEditor
           v-model="content"
           name="content"
           placeholder="请输入 Markdown 内容"
@@ -156,37 +156,37 @@ function toggleValueFormat() {
           :theme="dark ? 'dark' : 'light'"
           required
         />
-        <button class="demo__submit" type="submit">提交表单</button>
+        <button class="wujiee-demo__submit" type="submit">提交表单</button>
       </form>
 
-      <section class="docs" aria-labelledby="integration-title">
-        <header class="docs__header">
-          <p class="demo__eyebrow">INTEGRATION</p>
+      <section class="wujiee-docs" aria-labelledby="integration-title">
+        <header class="wujiee-docs__header">
+          <p class="wujiee-demo__eyebrow">INTEGRATION</p>
           <h2 id="integration-title">组件对接文档</h2>
           <p>编辑方式和保存格式相互独立。业务表单一般使用所见即所得，再根据接口字段选择保存 Markdown 或 HTML。</p>
         </header>
 
-        <div class="docs__grid">
-          <article class="docs__panel">
+        <div class="wujiee-docs__grid">
+          <article class="wujiee-docs__panel">
             <h3>安装</h3>
             <pre><code>{{ installCode }}</code></pre>
           </article>
-          <article class="docs__panel">
+          <article class="wujiee-docs__panel">
             <h3>当前表单数据</h3>
             <p>上方编辑器变化时，这里的数据会实时更新。</p>
-            <pre class="docs__live"><code>{{ livePayload }}</code></pre>
+            <pre class="wujiee-docs__live"><code>{{ livePayload }}</code></pre>
           </article>
         </div>
 
-        <article class="docs__panel docs__panel--wide">
+        <article class="wujiee-docs__panel wujiee-docs__panel--wide">
           <h3>Vue 3 / Nuxt 接入示例</h3>
           <pre><code>{{ usageCode }}</code></pre>
         </article>
 
-        <article class="docs__panel docs__panel--wide">
+        <article class="wujiee-docs__panel wujiee-docs__panel--wide">
           <h3>主要参数</h3>
-          <div class="docs__table-wrap">
-            <table class="docs__table">
+          <div class="wujiee-docs__table-wrap">
+            <table class="wujiee-docs__table">
               <thead><tr><th>参数</th><th>类型</th><th>默认值</th><th>说明</th></tr></thead>
               <tbody>
                 <tr v-for="row in propRows" :key="row[0]">
@@ -197,12 +197,12 @@ function toggleValueFormat() {
           </div>
         </article>
 
-        <div class="docs__grid">
-          <article class="docs__panel">
+        <div class="wujiee-docs__grid">
+          <article class="wujiee-docs__panel">
             <h3>toolbarConfig 完整配置</h3>
             <p>值为 <code>true</code> 时显示，值为 <code>false</code> 时隐藏；没有传入的字段按 <code>true</code> 处理。</p>
             <pre><code>const toolbarConfig = {{ toolbarConfigCode }}</code></pre>
-            <ul class="docs__key-list">
+            <ul class="wujiee-docs__key-list">
               <li><code>heading</code> 标题</li><li><code>bold</code> 粗体</li>
               <li><code>italic</code> 斜体</li><li><code>strike</code> 删除线</li>
               <li><code>quote</code> 引用</li><li><code>unordered-list</code> 无序列表</li>
@@ -215,11 +215,11 @@ function toggleValueFormat() {
             </ul>
           </article>
 
-          <article class="docs__panel">
+          <article class="wujiee-docs__panel">
             <h3>colors 完整默认值</h3>
             <p>只传需要覆盖的字段即可，其余字段继续使用默认值或宿主项目 CSS 变量。</p>
             <pre><code>const colors = {{ colorsCode }}</code></pre>
-            <ul class="docs__key-list">
+            <ul class="wujiee-docs__key-list">
               <li><code>background</code> 主背景</li><li><code>backgroundSoft</code> 次级背景</li>
               <li><code>text</code> 正文</li><li><code>muted</code> 次要文字</li>
               <li><code>border</code> 边框</li><li><code>primary</code> 品牌/选中颜色</li>
@@ -229,14 +229,14 @@ function toggleValueFormat() {
           </article>
         </div>
 
-        <div class="docs__grid">
-          <article class="docs__panel">
+        <div class="wujiee-docs__grid">
+          <article class="wujiee-docs__panel">
             <h3>TypeScript 数据结构</h3>
             <pre><code>{{ typeCode }}</code></pre>
           </article>
-          <article class="docs__panel">
+          <article class="wujiee-docs__panel">
             <h3>事件</h3>
-            <ul class="docs__list">
+            <ul class="wujiee-docs__list">
               <li><code>update:modelValue(value)</code>：更新表单值</li>
               <li><code>change(value)</code>：内容变化</li>
               <li><code>limit(maximum)</code>：达到字符上限</li>

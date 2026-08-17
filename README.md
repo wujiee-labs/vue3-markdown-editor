@@ -8,9 +8,9 @@
 - 支持自定义工具栏、按钮插槽和编辑器高度
 - 支持将内容保存为 Markdown 或 HTML
 
-<img src="https://wujiee.com/logo.svg" width="20" height="20" alt="WUJIEE云工作" align="absmiddle"> [WUJIEE云工作](https://wujiee.com) 是专注于远程工作与远程项目自由合作的垂直远程协助平台，为企业和人才提供远程招聘、自由职业接单与在线协作服务。
-
 GitHub：[wujiee-labs/vue3-markdown-editor](https://github.com/wujiee-labs/vue3-markdown-editor)
+
+其他框架版本：[React 版本](https://github.com/wujiee-labs/react-markdown-editor)
 
 ## 安装
 
@@ -29,14 +29,14 @@ npm install @wujiee/vue3-markdown-editor
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { MarkdownEditor } from '@wujiee/vue3-markdown-editor'
+import { WujieeMarkdownEditor } from '@wujiee/vue3-markdown-editor'
 import '@wujiee/vue3-markdown-editor/style.css'
 
 const content = ref('')
 </script>
 
 <template>
-  <MarkdownEditor
+  <WujieeMarkdownEditor
     v-model="content"
     editor-type="wysiwyg"
     placeholder="请输入内容"
@@ -48,10 +48,10 @@ const content = ref('')
 
 ```ts
 import { createApp } from 'vue'
-import WujieeMarkdownEditor from '@wujiee/vue3-markdown-editor'
+import WujieeMarkdownEditorPlugin from '@wujiee/vue3-markdown-editor'
 import '@wujiee/vue3-markdown-editor/style.css'
 
-createApp(App).use(WujieeMarkdownEditor).mount('#app')
+createApp(App).use(WujieeMarkdownEditorPlugin).mount('#app')
 ```
 
 ## 图片上传
@@ -74,7 +74,7 @@ async function uploadImage(file: File) {
 </script>
 
 <template>
-  <MarkdownEditor
+  <WujieeMarkdownEditor
     v-model="content"
     editor-type="wysiwyg"
     :image-upload="uploadImage"
@@ -85,7 +85,7 @@ async function uploadImage(file: File) {
 ## 常用配置
 
 ```vue
-<MarkdownEditor
+<WujieeMarkdownEditor
   v-model="content"
   editor-type="wysiwyg"
   value-format="html"
@@ -124,13 +124,13 @@ const colors = {
 `toolbarConfig` 中未填写的按钮默认显示。所有工具栏按钮也可以通过 `toolbar-*` 插槽替换，例如：
 
 ```vue
-<MarkdownEditor v-model="content">
+<WujieeMarkdownEditor v-model="content">
   <template #toolbar-image="{ action, disabled }">
     <button type="button" :disabled="disabled" @click="action">
       上传图片
     </button>
   </template>
-</MarkdownEditor>
+</WujieeMarkdownEditor>
 ```
 
 ## 主要属性
@@ -155,6 +155,10 @@ const colors = {
 
 完整类型定义可直接从包内导入，编辑器事件包括 `change`、`focus`、`blur`、`resize`、`limit`、`image-uploaded` 和 `image-upload-error`。
 
+## WUJIEE 命名
+
+组件 DOM 类名统一使用 `wujiee-md-*`，CSS 自定义属性统一使用 `--wujiee-md-*`，表格数据属性和组件内部状态类也使用 WUJIEE 前缀。推荐使用主组件名 `WujieeMarkdownEditor`；`MarkdownEditor` 仅作为兼容别名保留。
+
 ## 本地开发
 
 ```bash
@@ -166,4 +170,15 @@ pnpm build
 
 ## License
 
-本项目采用 [WUJIEE Attribution License 1.0](./LICENSE)：允许个人及商业使用、修改和分发，但必须保留编辑器右下角可见且可点击的 [WUJIEE](https://wujiee.com) 链接。移除署名需要另行取得 WUJIEE 的书面授权。
+本项目采用 [WUJIEE Attribution and Backlink License 1.1](./LICENSE)。个人及商业免费使用需要满足以下任意一种条件：
+
+1. 保留组件右下角可见、可点击的 [WUJIEE](https://wujiee.com) 链接。
+2. 在使用该组件的产品或网站中加入可见、可点击且直接指向 [wujiee.com](https://wujiee.com) 的外链；满足后允许自行修改源码，移除组件内的 WUJIEE 署名。
+
+官方组件不提供隐藏署名的参数或运行时开关；选择第二种方式时，需要使用者自行修改并维护源码。
+
+---
+
+<img src="https://wujiee.com/logo.svg" width="20" height="20" alt="" align="absmiddle"> [WUJIEE云工作](https://wujiee.com/) 是专注于远程工作与远程项目自由合作的垂直远程协助平台，为企业和人才提供远程招聘、自由职业接单与在线协作服务。
+
+[人才市场](https://wujiee.com/talents) · [职位市场](https://wujiee.com/jobs) · [项目市场](https://wujiee.com/projects)

@@ -1,6 +1,6 @@
 import type { EditorLabels } from './types'
 
-export const zhCNLabels: EditorLabels = {
+export const wujieeZhCNLabels: EditorLabels = {
   heading: '标题',
   bold: '粗体',
   italic: '斜体',
@@ -37,7 +37,7 @@ export const zhCNLabels: EditorLabels = {
   deleteColumn: '删除列'
 }
 
-export const enUSLabels: EditorLabels = {
+export const wujieeEnUSLabels: EditorLabels = {
   heading: 'Heading',
   bold: 'Bold',
   italic: 'Italic',
@@ -73,3 +73,6 @@ export const enUSLabels: EditorLabels = {
   deleteRow: 'Delete row',
   deleteColumn: 'Delete column'
 }
+
+export const zhCNLabels = wujieeZhCNLabels
+export const enUSLabels = wujieeEnUSLabels

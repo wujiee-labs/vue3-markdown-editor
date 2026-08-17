@@ -46,16 +46,16 @@ describe('MarkdownEditor', () => {
       props: { modelValue: '<img src=x onerror=alert(1)>', mode: 'preview' }
     })
 
-    expect(wrapper.find('.wmd-preview').html()).not.toContain('<img')
+    expect(wrapper.find('.wujiee-md-preview').html()).not.toContain('<img')
     expect(wrapper.text()).toContain('<img src=x onerror=alert(1)>')
   })
 
   it('supports borderless appearance and immediate toolbar labels', async () => {
     const wrapper = mount(MarkdownEditor, { props: { bordered: false } })
-    expect(wrapper.classes()).toContain('wmd--borderless')
+    expect(wrapper.classes()).toContain('wujiee-md--borderless')
 
     await wrapper.get('button[aria-label="粗体"]').trigger('mouseenter')
-    expect(document.body.querySelector('.wmd-tooltip')?.textContent?.trim()).toBe('粗体')
+    expect(document.body.querySelector('.wujiee-md-tooltip')?.textContent?.trim()).toBe('粗体')
     wrapper.unmount()
   })
 
@@ -68,11 +68,11 @@ describe('MarkdownEditor', () => {
     field.setSelectionRange(0, 5)
 
     await wrapper.get('button[aria-label="链接"]').trigger('click')
-    expect(wrapper.find('.wmd-link-dialog').exists()).toBe(true)
+    expect(wrapper.find('.wujiee-md-link-dialog').exists()).toBe(true)
     expect(promptSpy).not.toHaveBeenCalled()
 
     await wrapper.get('input[inputmode="url"]').setValue('example.com')
-    await wrapper.get('.wmd-link-dialog').trigger('submit')
+    await wrapper.get('.wujiee-md-link-dialog').trigger('submit')
     expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['[hello](https://example.com)'])
     promptSpy.mockRestore()
   })
@@ -81,12 +81,12 @@ describe('MarkdownEditor', () => {
     const wrapper = mount(MarkdownEditor, {
       props: { modelValue: '**bold**', editorType: 'wysiwyg' }
     })
-    const editor = wrapper.get('.wmd-rich-editor')
+    const editor = wrapper.get('.wujiee-md-rich-editor')
 
     expect(editor.find('strong').text()).toBe('bold')
     expect(wrapper.find('button[aria-label="编辑"]').exists()).toBe(false)
-    expect(wrapper.get('.wmd-statusbar__brand').text()).toBe('WUJIEE')
-    expect(wrapper.get('.wmd-statusbar__brand').attributes('href')).toBe('https://wujiee.com')
+    expect(wrapper.get('.wujiee-md-statusbar__brand').text()).toBe('WUJIEE')
+    expect(wrapper.get('.wujiee-md-statusbar__brand').attributes('href')).toBe('https://wujiee.com')
 
     editor.element.innerHTML = '<p><strong>updated</strong></p>'
     await editor.trigger('input')
@@ -101,7 +101,7 @@ describe('MarkdownEditor', () => {
         valueFormat: 'html'
       }
     })
-    const editor = wrapper.get('.wmd-rich-editor')
+    const editor = wrapper.get('.wujiee-md-rich-editor')
 
     expect(editor.find('strong').text()).toBe('bold')
     editor.element.innerHTML = '<h2>标题</h2><p><strong>内容</strong></p>'
@@ -121,7 +121,7 @@ describe('MarkdownEditor', () => {
         valueFormat: 'html'
       }
     })
-    const field = wrapper.get('.wmd-textarea')
+    const field = wrapper.get('.wujiee-md-textarea')
 
     expect((field.element as HTMLTextAreaElement).value).toContain('**初始内容**')
     await field.setValue('## 新标题')
@@ -137,7 +137,7 @@ describe('MarkdownEditor', () => {
       }
     })
 
-    const preview = wrapper.get('.wmd-preview').html()
+    const preview = wrapper.get('.wujiee-md-preview').html()
     expect(preview).not.toContain('onerror')
     expect(preview).not.toContain('<script')
   })
@@ -147,7 +147,7 @@ describe('MarkdownEditor', () => {
       attachTo: document.body,
       props: { modelValue: '', editorType: 'wysiwyg', name: 'content', required: true }
     })
-    const validationField = wrapper.get('.wmd-rich-validation').element as HTMLTextAreaElement
+    const validationField = wrapper.get('.wujiee-md-rich-validation').element as HTMLTextAreaElement
     expect(validationField.checkValidity()).toBe(false)
 
     await wrapper.setProps({ modelValue: 'content' })
@@ -185,15 +185,15 @@ describe('MarkdownEditor', () => {
         modelValue: '| A | B |\n| --- | --- |\n| 1 | 2 |'
       }
     })
-    await wrapper.get('.wmd-rich-editor td').trigger('click')
-    expect(wrapper.find('.wmd-table-tools').exists()).toBe(true)
-    expect(wrapper.find('.wmd-table-tools span').exists()).toBe(false)
+    await wrapper.get('.wujiee-md-rich-editor td').trigger('click')
+    expect(wrapper.find('.wujiee-md-table-tools').exists()).toBe(true)
+    expect(wrapper.find('.wujiee-md-table-tools span').exists()).toBe(false)
 
-    await wrapper.get('.wmd-table-tools button:nth-of-type(1)').trigger('click')
-    expect(wrapper.findAll('.wmd-rich-editor tr')).toHaveLength(3)
+    await wrapper.get('.wujiee-md-table-tools button:nth-of-type(1)').trigger('click')
+    expect(wrapper.findAll('.wujiee-md-rich-editor tr')).toHaveLength(3)
 
-    await wrapper.get('.wmd-table-tools button:nth-of-type(2)').trigger('click')
-    expect(wrapper.findAll('.wmd-rich-editor thead th')).toHaveLength(3)
+    await wrapper.get('.wujiee-md-table-tools button:nth-of-type(2)').trigger('click')
+    expect(wrapper.findAll('.wujiee-md-rich-editor thead th')).toHaveLength(3)
     expect(String(wrapper.emitted('update:modelValue')?.at(-1)?.[0])).toContain('wujiee-table-widths')
   })
 
@@ -207,39 +207,39 @@ describe('MarkdownEditor', () => {
     expect(wrapper.find('button[aria-label="粗体"]').exists()).toBe(false)
     expect(wrapper.find('button[aria-label="表格"]').exists()).toBe(false)
     expect(wrapper.find('button[aria-label="全屏"]').exists()).toBe(false)
-    expect(wrapper.attributes('style')).toContain('--wmd-primary: #ff0000')
-    expect(wrapper.attributes('style')).toContain('--wmd-bg: #fafafa')
+    expect(wrapper.attributes('style')).toContain('--wujiee-md-primary: #ff0000')
+    expect(wrapper.attributes('style')).toContain('--wujiee-md-bg: #fafafa')
   })
 
   it('supports replacing individual toolbar buttons with named slots', () => {
     const wrapper = mount(MarkdownEditor, {
-      slots: { 'toolbar-bold': '<button class="custom-bold">自定义粗体</button>' }
+      slots: { 'toolbar-bold': '<button class="wujiee-custom-bold">自定义粗体</button>' }
     })
-    expect(wrapper.get('.custom-bold').text()).toBe('自定义粗体')
+    expect(wrapper.get('.wujiee-custom-bold').text()).toBe('自定义粗体')
     expect(wrapper.find('button[aria-label="粗体"]').exists()).toBe(false)
   })
 
   it('keeps the WUJIEE attribution when the character status is hidden', () => {
     const wrapper = mount(MarkdownEditor, { props: { showStatusbar: false } })
-    expect(wrapper.find('.wmd-statusbar > span').exists()).toBe(false)
-    expect(wrapper.get('.wmd-statusbar__brand').attributes('href')).toBe('https://wujiee.com')
+    expect(wrapper.find('.wujiee-md-statusbar > span').exists()).toBe(false)
+    expect(wrapper.get('.wujiee-md-statusbar__brand').attributes('href')).toBe('https://wujiee.com')
   })
 
   it('supports a keyboard-resizable height and a fixed-height mode', async () => {
     const wrapper = mount(MarkdownEditor, { props: { minHeight: 240, height: 320 } })
-    await wrapper.get('.wmd-resize-handle').trigger('keydown', { key: 'ArrowDown' })
+    await wrapper.get('.wujiee-md-resize-handle').trigger('keydown', { key: 'ArrowDown' })
     expect(wrapper.emitted('resize')?.at(-1)).toEqual([240])
 
     await wrapper.setProps({ resizable: false, height: 360 })
-    expect(wrapper.find('.wmd-resize-handle').exists()).toBe(false)
-    expect(wrapper.attributes('style')).toContain('--wmd-height: 360px')
+    expect(wrapper.find('.wujiee-md-resize-handle').exists()).toBe(false)
+    expect(wrapper.attributes('style')).toContain('--wujiee-md-height: 360px')
   })
 
   it('counts and limits visible Unicode characters instead of UTF-16 units', async () => {
     const wrapper = mount(MarkdownEditor, {
       props: { modelValue: '**中A😀**', maxlength: 3, mode: 'edit' }
     })
-    expect(wrapper.get('.wmd-statusbar > span').text()).toContain('3 / 3')
+    expect(wrapper.get('.wujiee-md-statusbar > span').text()).toContain('3 / 3')
 
     await wrapper.get('textarea').setValue('中A😀B')
     expect(wrapper.emitted('limit')?.at(-1)).toEqual([3])

@@ -1,12 +1,25 @@
 import type { App } from 'vue'
-import MarkdownEditor from './MarkdownEditor.vue'
+import WujieeMarkdownEditorComponent from './MarkdownEditor.vue'
 import './style.css'
 
-export { MarkdownEditor }
-export { renderMarkdown } from './markdown'
-export { htmlToMarkdown } from './htmlToMarkdown'
-export { countGraphemes, countMarkdownCharacters } from './characterCount'
-export { defaultEditorColors, defaultToolbar, defaultToolbarConfig } from './types'
+export const WujieeMarkdownEditor = WujieeMarkdownEditorComponent
+export const MarkdownEditor = WujieeMarkdownEditorComponent
+export { renderMarkdown, renderWujieeMarkdown } from './markdown'
+export { htmlToMarkdown, convertWujieeHtmlToMarkdown } from './htmlToMarkdown'
+export {
+  countGraphemes,
+  countWujieeGraphemes,
+  countMarkdownCharacters,
+  countWujieeMarkdownCharacters
+} from './characterCount'
+export {
+  defaultEditorColors,
+  defaultToolbar,
+  defaultToolbarConfig,
+  wujieeDefaultEditorColors,
+  wujieeDefaultToolbar,
+  wujieeDefaultToolbarConfig
+} from './types'
 export type {
   EditorColorConfig,
   EditorLabels,
@@ -24,6 +37,6 @@ export type {
 
 export default {
   install(app: App) {
-    app.component('WujieeMarkdownEditor', MarkdownEditor)
+    app.component('WujieeMarkdownEditor', WujieeMarkdownEditor)
   }
 }

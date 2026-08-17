@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { iconPaths } from './icons'
+import { wujieeIconPaths } from './icons'
 import type { ToolbarItemName } from './types'
 
 defineProps<{
@@ -8,7 +8,7 @@ defineProps<{
 </script>
 
 <template>
-  <svg class="wmd-icon" viewBox="0 0 24 24" aria-hidden="true">
-    <path v-for="path in iconPaths[name]" :key="path" :d="path" />
+  <svg class="wujiee-md-icon" viewBox="0 0 24 24" aria-hidden="true">
+    <path v-for="path in wujieeIconPaths[name]" :key="path" :d="path" />
   </svg>
 </template>

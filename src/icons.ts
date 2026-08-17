@@ -1,6 +1,6 @@
 import type { ToolbarItemName } from './types'
 
-export const iconPaths: Record<ToolbarItemName | 'edit' | 'split' | 'preview' | 'fullscreen' | 'exit-fullscreen', string[]> = {
+export const wujieeIconPaths: Record<ToolbarItemName | 'edit' | 'split' | 'preview' | 'fullscreen' | 'exit-fullscreen', string[]> = {
   heading: ['M6 5v14M18 5v14M6 12h12'],
   bold: ['M8 5h5a4 4 0 0 1 0 8H8z', 'M8 13h6a3.5 3.5 0 0 1 0 7H8z'],
   italic: ['M10 5h6M8 19h6M14 5l-4 14'],
@@ -21,3 +21,5 @@ export const iconPaths: Record<ToolbarItemName | 'edit' | 'split' | 'preview' | 
   fullscreen: ['M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5'],
   'exit-fullscreen': ['M9 3v6H3M15 3v6h6M9 21v-6H3M15 21v-6h6']
 }
+
+export const iconPaths = wujieeIconPaths
