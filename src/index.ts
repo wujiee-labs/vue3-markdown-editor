@@ -1,9 +1,12 @@
-import type { App } from 'vue'
+import type { App, DefineComponent } from 'vue'
 import WujieeMarkdownEditorComponent from './MarkdownEditor.vue'
+import type { WujieeMarkdownEditorExposed, WujieeMarkdownEditorProps } from './types'
 import './style.css'
 
-export const WujieeMarkdownEditor = WujieeMarkdownEditorComponent
-export const MarkdownEditor = WujieeMarkdownEditorComponent
+const wujieeMarkdownEditorComponent = WujieeMarkdownEditorComponent as unknown as DefineComponent<WujieeMarkdownEditorProps, WujieeMarkdownEditorExposed>
+
+export const WujieeMarkdownEditor = wujieeMarkdownEditorComponent
+export const MarkdownEditor = wujieeMarkdownEditorComponent
 export { renderMarkdown, renderWujieeMarkdown } from './markdown'
 export { htmlToMarkdown, convertWujieeHtmlToMarkdown } from './htmlToMarkdown'
 export {
@@ -30,6 +33,8 @@ export type {
   ImageUploadHandler,
   ImageUploadResult,
   InsertPayload,
+  WujieeMarkdownEditorExposed,
+  WujieeMarkdownEditorProps,
   ToolbarConfig,
   ToolbarControlName,
   ToolbarItemName

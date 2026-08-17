@@ -16,9 +16,9 @@ GitHub：[wujiee-labs/vue3-markdown-editor](https://github.com/wujiee-labs/vue3-
 
 | 环境 | 支持范围 |
 | --- | --- |
-| Vue | `>=3.3.0 <4.0.0` |
-| Node.js | `>=18.18.0` |
-| TypeScript | `5.x`（可选，JavaScript 项目可直接使用） |
+| Vue | `>=3.2.0 <4.0.0` |
+| Node.js | `>=18.0.0` |
+| TypeScript | `>=4.7.0`（可选，JavaScript 项目可直接使用） |
 | 浏览器 | 支持 ES2020 的现代浏览器；不支持 IE |
 | 模块格式 | ESM、CommonJS |
 

@@ -1,3 +1,5 @@
+import type { Ref } from 'vue'
+
 export type EditorMode = 'edit' | 'split' | 'preview'
 export type EditorTheme = 'auto' | 'light' | 'dark'
 export type EditorType = 'markdown' | 'wysiwyg'
@@ -85,6 +87,54 @@ export interface InsertPayload {
   after?: string
   placeholder?: string
   block?: boolean
+}
+
+export interface WujieeMarkdownEditorProps {
+  modelValue?: string
+  name?: string
+  placeholder?: string
+  height?: string | number
+  minHeight?: string | number
+  maxHeight?: string | number
+  resizable?: boolean
+  maxlength?: number
+  required?: boolean
+  disabled?: boolean
+  readonly?: boolean
+  autofocus?: boolean
+  mode?: EditorMode
+  editorType?: EditorType
+  valueFormat?: ValueFormat
+  theme?: EditorTheme
+  bordered?: boolean
+  locale?: 'zh-CN' | 'en-US'
+  labels?: Partial<EditorLabels>
+  toolbar?: ToolbarItemName[]
+  toolbarConfig?: ToolbarConfig
+  colors?: Partial<EditorColorConfig>
+  showToolbar?: boolean
+  showStatusbar?: boolean
+  showModeSwitch?: boolean
+  allowFullscreen?: boolean
+  imageUpload?: ImageUploadHandler
+  imageAccept?: string
+  maxImageSize?: number
+  ariaLabel?: string
+}
+
+export interface WujieeMarkdownEditorExposed {
+  focus: () => void
+  blur: () => void
+  insert: (payload: InsertPayload) => void
+  triggerImagePicker: () => void
+  wujieeFocus: () => void
+  wujieeBlur: () => void
+  wujieeInsert: (payload: InsertPayload) => void
+  wujieeTriggerImagePicker: () => void
+  textarea: Ref<HTMLTextAreaElement | undefined>
+  richEditor: Ref<HTMLDivElement | undefined>
+  wujieeTextarea: Ref<HTMLTextAreaElement | undefined>
+  wujieeRichEditor: Ref<HTMLDivElement | undefined>
 }
 
 export const wujieeDefaultToolbar: ToolbarItemName[] = [
