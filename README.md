@@ -1,9 +1,3 @@
-<p align="center">
-  <a href="https://wujiee.com">
-    <img src="https://wujiee.com/logo.svg" width="72" height="72" alt="WUJIEE云工作">
-  </a>
-</p>
-
 # @wujiee/vue3-markdown-editor
 
 一个轻量、可定制的 Vue 3 Markdown 编辑器，适合直接放入业务表单。
@@ -14,7 +8,7 @@
 - 支持自定义工具栏、按钮插槽和编辑器高度
 - 支持将内容保存为 Markdown 或 HTML
 
-[WUJIEE云工作](https://wujiee.com)——远程工作与远程项目自由合作的垂直远程协助平台。
+<img src="https://wujiee.com/logo.svg" width="20" height="20" alt="WUJIEE云工作" align="absmiddle"> [WUJIEE云工作](https://wujiee.com) 是专注于远程工作与远程项目自由合作的垂直远程协助平台，为企业和人才提供远程招聘、自由职业接单与在线协作服务。
 
 GitHub：[wujiee-labs/vue3-markdown-editor](https://github.com/wujiee-labs/vue3-markdown-editor)
 
