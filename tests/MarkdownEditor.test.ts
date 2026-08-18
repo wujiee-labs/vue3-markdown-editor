@@ -207,6 +207,21 @@ describe('MarkdownEditor', () => {
     Reflect.deleteProperty(document, 'execCommand')
   })
 
+  it('allows checking task items while editing and persists the checked state', async () => {
+    const wrapper = mount(MarkdownEditor, {
+      attachTo: document.body,
+      props: { modelValue: '- [ ] 任务', editorType: 'wysiwyg' }
+    })
+    const checkbox = wrapper.get('.wujiee-md-task-list-checkbox').element as HTMLInputElement
+    expect(checkbox.disabled).toBe(false)
+
+    checkbox.click()
+    await flushPromises()
+    expect(checkbox.checked).toBe(true)
+    expect(String(wrapper.emitted('update:modelValue')?.at(-1)?.[0])).toContain('- [x] 任务')
+    wrapper.unmount()
+  })
+
   it('edits Markdown source while emitting HTML storage format', async () => {
     const wrapper = mount(MarkdownEditor, {
       props: {
@@ -333,7 +348,7 @@ describe('MarkdownEditor', () => {
     const wrapper = mount(MarkdownEditor, {
       props: { modelValue: '**中A😀**', maxlength: 3, mode: 'edit' }
     })
-    expect(wrapper.get('.wujiee-md-statusbar > span').text()).toContain('3 / 3')
+    expect(wrapper.get('.wujiee-md-statusbar > span').text()).toBe('3 / 3')
 
     await wrapper.get('textarea').setValue('中A😀B')
     expect(wrapper.emitted('limit')?.at(-1)).toEqual([3])

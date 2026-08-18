@@ -232,7 +232,15 @@ function wujieeSyncRichEditorFromModel(): void {
   if (wujieeRichEditor.value && wujieeRichEditor.value.innerHTML !== wujieeRenderedHtml.value) {
     wujieeActiveTableCell.value = undefined
     wujieeRichEditor.value.innerHTML = wujieeRenderedHtml.value
+    wujieeEnableRichTaskCheckboxes()
   }
+}
+
+function wujieeEnableRichTaskCheckboxes(): void {
+  wujieeRichEditor.value?.querySelectorAll<HTMLInputElement>('.wujiee-md-task-list-checkbox').forEach(wujieeCheckbox => {
+    wujieeCheckbox.disabled = false
+    wujieeCheckbox.removeAttribute('disabled')
+  })
 }
 
 function wujieeSyncRichValue(preserveRichDom = false): void {
@@ -283,6 +291,12 @@ function wujieeEnsureTableColumns(table: HTMLTableElement): HTMLTableColElement[
 
 function wujieeHandleRichClick(event: MouseEvent): void {
   const target = event.target as Element
+  const checkbox = target.closest('.wujiee-md-task-list-checkbox') as HTMLInputElement | null
+  if (checkbox && wujieeRichEditor.value?.contains(checkbox)) {
+    checkbox.toggleAttribute('checked', checkbox.checked)
+    wujieeSyncRichValue(true)
+    return
+  }
   const cell = target.closest('th, td') as HTMLTableCellElement | null
   wujieeActiveTableCell.value = cell && wujieeRichEditor.value?.contains(cell) ? cell : undefined
   if (wujieeActiveTableCell.value) wujieeEnsureTableColumns(wujieeTableFromCell()!)
@@ -624,7 +638,7 @@ function wujieeToggleRichInlineCode(): void {
 
 function wujieeToggleRichTaskList(active: boolean): void {
   if (!active) {
-    document.execCommand('insertHTML', false, `<ul><li class="wujiee-md-task-list-item"><input class="wujiee-md-task-list-checkbox" type="checkbox" disabled> ${wujieeEscapeHtml(wujieeResolvedLabels.value.taskList)}</li></ul>`)
+      document.execCommand('insertHTML', false, `<ul><li class="wujiee-md-task-list-item"><input class="wujiee-md-task-list-checkbox" type="checkbox"> ${wujieeEscapeHtml(wujieeResolvedLabels.value.taskList)}</li></ul>`)
     return
   }
 
@@ -1081,7 +1095,7 @@ onBeforeUnmount(() => {
           @pointerdown="wujieeHandleTablePointerDown"
           @mouseup="wujieeSaveRichSelection"
           @keyup="wujieeSaveRichSelection"
-          @focus="wujieeEmit('focus', $event)"
+          @focus="wujieeEnableRichTaskCheckboxes(); wujieeEmit('focus', $event)"
           @blur="wujieeEmit('blur', $event); wujieeSyncRichValue()"
         />
       </template>
@@ -1124,7 +1138,7 @@ onBeforeUnmount(() => {
     ><span /></div>
 
     <div class="wujiee-md-statusbar" :class="{ 'wujiee-md-statusbar--brand-only': !showStatusbar }">
-      <span v-if="showStatusbar">{{ wujieeCharacterCount }}<template v-if="maxlength"> / {{ maxlength }}</template> {{ wujieeResolvedLabels.characters }}</span>
+      <span v-if="showStatusbar">{{ wujieeCharacterCount }}<template v-if="maxlength"> / {{ maxlength }}</template></span>
       <a class="wujiee-md-statusbar__brand" href="https://wujiee.com" target="_blank" rel="noopener noreferrer">WUJIEE</a>
     </div>
 
