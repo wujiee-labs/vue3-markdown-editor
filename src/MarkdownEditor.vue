@@ -114,6 +114,7 @@ const wujieeLinkText = ref('')
 const wujieeLinkError = ref('')
 const wujieeDraggedHeight = ref<number>()
 const wujieeActiveTableCell = ref<HTMLTableCellElement>()
+const wujieeActiveToolbarItems = ref<Partial<Record<ToolbarItemName, boolean>>>({})
 let wujieeSavedRichRange: Range | null = null
 let wujieeSavedMarkdownSelection: { value: string; start: number; end: number } | null = null
 let wujieeRichModelValueToPreserve: string | undefined
@@ -452,8 +453,50 @@ function wujieeSelectionBelongsToRichEditor(): boolean {
   return Boolean(range && wujieeRichEditor.value?.contains(range.commonAncestorContainer))
 }
 
+function wujieeRichSelectionElement(): Element | undefined {
+  const wujieeSelected = window.getSelection()
+  const wujieeNode = wujieeSelected?.focusNode
+  const wujieeElement = wujieeNode instanceof Element ? wujieeNode : wujieeNode?.parentElement
+  return wujieeElement && wujieeRichEditor.value?.contains(wujieeElement) ? wujieeElement : undefined
+}
+
+function wujieeQueryCommandState(command: string): boolean {
+  try {
+    return document.queryCommandState(command)
+  } catch {
+    return false
+  }
+}
+
+function wujieeUpdateRichToolbarState(): void {
+  if (wujieeProps.editorType !== 'wysiwyg' || !wujieeSelectionBelongsToRichEditor()) return
+  const wujieeElement = wujieeRichSelectionElement()
+  const wujieeCode = wujieeElement?.closest('code')
+  const wujieeTaskListItem = wujieeElement?.closest('li')?.querySelector('input[type="checkbox"]')
+
+  wujieeActiveToolbarItems.value = {
+    heading: Boolean(wujieeElement?.closest('h1, h2, h3, h4, h5, h6')),
+    bold: wujieeQueryCommandState('bold') || Boolean(wujieeElement?.closest('strong, b')),
+    italic: wujieeQueryCommandState('italic') || Boolean(wujieeElement?.closest('em, i')),
+    strike: wujieeQueryCommandState('strikeThrough') || Boolean(wujieeElement?.closest('s, strike, del')),
+    quote: Boolean(wujieeElement?.closest('blockquote')),
+    'unordered-list': !wujieeTaskListItem && (wujieeQueryCommandState('insertUnorderedList') || Boolean(wujieeElement?.closest('ul'))),
+    'ordered-list': wujieeQueryCommandState('insertOrderedList') || Boolean(wujieeElement?.closest('ol')),
+    'task-list': Boolean(wujieeTaskListItem),
+    'inline-code': Boolean(wujieeCode && !wujieeCode.closest('pre')),
+    'code-block': Boolean(wujieeElement?.closest('pre')),
+    link: Boolean(wujieeElement?.closest('a'))
+  }
+}
+
+function wujieeIsToolbarItemActive(item: ToolbarItemName): boolean {
+  return wujieeProps.editorType === 'wysiwyg' && Boolean(wujieeActiveToolbarItems.value[item])
+}
+
 function wujieeSaveRichSelection(): void {
-  if (wujieeSelectionBelongsToRichEditor()) wujieeSavedRichRange = window.getSelection()!.getRangeAt(0).cloneRange()
+  if (!wujieeSelectionBelongsToRichEditor()) return
+  wujieeSavedRichRange = window.getSelection()!.getRangeAt(0).cloneRange()
+  wujieeUpdateRichToolbarState()
 }
 
 function wujieeRestoreRichSelection(): void {
@@ -558,25 +601,69 @@ function wujieeWrapRichSelection(): void {
   selected.addRange(range)
 }
 
+function wujieeUnwrapRichElement(element: Element): void {
+  const wujieeChildren = Array.from(element.childNodes)
+  const wujieeFirst = wujieeChildren[0]
+  const wujieeLast = wujieeChildren[wujieeChildren.length - 1]
+  if (!wujieeFirst || !wujieeLast) return
+
+  element.replaceWith(...wujieeChildren)
+  const wujieeRange = document.createRange()
+  wujieeRange.setStartBefore(wujieeFirst)
+  wujieeRange.setEndAfter(wujieeLast)
+  const wujieeSelected = window.getSelection()
+  wujieeSelected?.removeAllRanges()
+  wujieeSelected?.addRange(wujieeRange)
+}
+
+function wujieeToggleRichInlineCode(): void {
+  const wujieeCode = wujieeRichSelectionElement()?.closest('code')
+  if (wujieeCode && !wujieeCode.closest('pre')) wujieeUnwrapRichElement(wujieeCode)
+  else wujieeWrapRichSelection()
+}
+
+function wujieeToggleRichTaskList(active: boolean): void {
+  if (!active) {
+    document.execCommand('insertHTML', false, `<ul><li class="wujiee-md-task-list-item"><input class="wujiee-md-task-list-checkbox" type="checkbox" disabled> ${wujieeEscapeHtml(wujieeResolvedLabels.value.taskList)}</li></ul>`)
+    return
+  }
+
+  const wujieeItem = wujieeRichSelectionElement()?.closest('li')
+  const wujieeCheckbox = wujieeItem?.querySelector('input[type="checkbox"]')
+  if (!wujieeItem || !wujieeCheckbox) return
+  wujieeCheckbox.remove()
+  wujieeItem.classList.remove('wujiee-md-task-list-item')
+  if (wujieeItem.firstChild?.nodeType === Node.TEXT_NODE) {
+    wujieeItem.firstChild.textContent = wujieeItem.firstChild.textContent?.replace(/^\s+/, '') || ''
+  }
+  document.execCommand('insertUnorderedList')
+}
+
 function wujieeRunRichCommand(command: Exclude<ToolbarItemName, 'image'>): void {
   if (!wujieeRichEditor.value) return
   wujieeRichEditor.value.focus()
   wujieeRestoreRichSelection()
 
+  wujieeUpdateRichToolbarState()
+  const wujieeWasActive = Boolean(wujieeActiveToolbarItems.value[command])
+
   switch (command) {
-    case 'heading': document.execCommand('formatBlock', false, 'h2'); break
+    case 'heading': document.execCommand('formatBlock', false, wujieeWasActive ? 'p' : 'h2'); break
     case 'bold': document.execCommand('bold'); break
     case 'italic': document.execCommand('italic'); break
     case 'strike': document.execCommand('strikeThrough'); break
-    case 'quote': document.execCommand('formatBlock', false, 'blockquote'); break
+    case 'quote': document.execCommand('formatBlock', false, wujieeWasActive ? 'p' : 'blockquote'); break
     case 'unordered-list': document.execCommand('insertUnorderedList'); break
     case 'ordered-list': document.execCommand('insertOrderedList'); break
-    case 'task-list':
-      document.execCommand('insertHTML', false, `<ul><li><input type="checkbox" disabled> ${wujieeEscapeHtml(wujieeResolvedLabels.value.taskList)}</li></ul>`)
+    case 'task-list': wujieeToggleRichTaskList(wujieeWasActive); break
+    case 'inline-code': wujieeToggleRichInlineCode(); break
+    case 'code-block': document.execCommand('formatBlock', false, wujieeWasActive ? 'p' : 'pre'); break
+    case 'link': {
+      const wujieeLink = wujieeRichSelectionElement()?.closest('a')
+      if (wujieeWasActive && wujieeLink) wujieeUnwrapRichElement(wujieeLink)
+      else return wujieeOpenLinkDialog()
       break
-    case 'inline-code': wujieeWrapRichSelection(); break
-    case 'code-block': document.execCommand('formatBlock', false, 'pre'); break
-    case 'link': return wujieeOpenLinkDialog()
+    }
     case 'table':
       document.execCommand('insertHTML', false, '<table data-wujiee-md-resizable-table="true"><colgroup><col style="width:33.33%"><col style="width:33.33%"><col style="width:33.34%"></colgroup><thead><tr><th>列 1</th><th>列 2</th><th>列 3</th></tr></thead><tbody><tr><td>内容</td><td>内容</td><td>内容</td></tr><tr><td>内容</td><td>内容</td><td>内容</td></tr></tbody></table><p><br></p>')
       break
@@ -590,8 +677,8 @@ function wujieeRunRichCommand(command: Exclude<ToolbarItemName, 'image'>): void 
 function wujieeRunCommand(command: ToolbarItemName): void {
   if (wujieeProps.disabled || wujieeProps.readonly) return
   if (command === 'image') return wujieeTriggerImagePicker()
-  if (command === 'link') return wujieeOpenLinkDialog()
   if (wujieeProps.editorType === 'wysiwyg') wujieeRunRichCommand(command)
+  else if (command === 'link') wujieeOpenLinkDialog()
   else wujieeRunMarkdownCommand(command)
 }
 
@@ -688,6 +775,40 @@ function wujieeHandleKeydown(event: KeyboardEvent): void {
   wujieeRunCommand(shortcut)
 }
 
+function wujieeExitRichCodeBlock(): boolean {
+  const wujieeSelected = window.getSelection()
+  if (!wujieeSelected?.rangeCount) return false
+  const wujieeRange = wujieeSelected.getRangeAt(0)
+  const wujieePre = wujieeRichSelectionElement()?.closest('pre')
+  if (!wujieePre || !wujieeRange.collapsed) return false
+
+  const wujieeAfterRange = document.createRange()
+  wujieeAfterRange.selectNodeContents(wujieePre)
+  wujieeAfterRange.setStart(wujieeRange.startContainer, wujieeRange.startOffset)
+  const wujieeAfterFragment = wujieeAfterRange.cloneContents()
+  if (wujieeAfterFragment.textContent || wujieeAfterFragment.querySelector('br')) return false
+
+  const wujieeBeforeRange = document.createRange()
+  wujieeBeforeRange.selectNodeContents(wujieePre)
+  wujieeBeforeRange.setEnd(wujieeRange.startContainer, wujieeRange.startOffset)
+  const wujieeBeforeFragment = wujieeBeforeRange.cloneContents()
+  const wujieeBeforeContainer = document.createElement('div')
+  wujieeBeforeContainer.append(wujieeBeforeFragment)
+  const wujieeHasEmptyLastLine = wujieeBeforeRange.toString().endsWith('\n')
+    || /<br\s*\/?>\s*$/i.test(wujieeBeforeContainer.innerHTML)
+  if (!wujieeHasEmptyLastLine) return false
+
+  const wujieeParagraph = document.createElement('p')
+  wujieeParagraph.append(document.createElement('br'))
+  wujieePre.after(wujieeParagraph)
+  const wujieeExitRange = document.createRange()
+  wujieeExitRange.setStart(wujieeParagraph, 0)
+  wujieeExitRange.collapse(true)
+  wujieeSelected.removeAllRanges()
+  wujieeSelected.addRange(wujieeExitRange)
+  return true
+}
+
 function wujieeHandleRichKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape' && wujieeLinkDialogOpen.value) {
     event.preventDefault()
@@ -695,6 +816,10 @@ function wujieeHandleRichKeydown(event: KeyboardEvent): void {
   } else if (event.key === 'Escape' && wujieeIsFullscreen.value) {
     event.preventDefault()
     wujieeToggleFullscreen()
+  } else if (event.key === 'Enter' && !event.shiftKey && wujieeExitRichCodeBlock()) {
+    event.preventDefault()
+    wujieeSaveRichSelection()
+    wujieeSyncRichValue()
   } else if (event.key === 'Tab') {
     event.preventDefault()
     document.execCommand('insertText', false, '  ')
@@ -811,9 +936,11 @@ defineExpose({
 onMounted(() => {
   if (wujieeProps.editorType === 'wysiwyg') wujieeSyncRichEditorFromModel()
   if (wujieeProps.autofocus) wujieeFocus()
+  document.addEventListener('selectionchange', wujieeSaveRichSelection)
 })
 
 onBeforeUnmount(() => {
+  document.removeEventListener('selectionchange', wujieeSaveRichSelection)
   if (wujieeIsFullscreen.value) document.body.classList.remove('wujiee-md-body-locked')
   wujieeStopColumnResize()
   wujieeStopResize()
@@ -833,6 +960,7 @@ onBeforeUnmount(() => {
             :item="item"
             :label="wujieeResolvedLabels[wujieeToolbarLabelKeys[item]]"
             :disabled="disabled || readonly"
+            :active="wujieeIsToolbarItemActive(item)"
             :action="() => wujieeRunCommand(item)"
           >
             <slot
@@ -840,13 +968,16 @@ onBeforeUnmount(() => {
               :item="item"
               :label="wujieeResolvedLabels[wujieeToolbarLabelKeys[item]]"
               :disabled="disabled || readonly"
+              :active="wujieeIsToolbarItemActive(item)"
               :action="() => wujieeRunCommand(item)"
             >
               <button
                 class="wujiee-md-tool"
+                :class="{ 'wujiee-md-is-active': wujieeIsToolbarItemActive(item) }"
                 type="button"
                 :aria-label="item === 'image' && wujieeIsUploadingImage ? wujieeResolvedLabels.uploadingImage : wujieeResolvedLabels[wujieeToolbarLabelKeys[item]]"
                 :disabled="disabled || readonly || (item === 'image' && wujieeIsUploadingImage)"
+                :aria-pressed="wujieeIsToolbarItemActive(item)"
                 @mousedown.prevent="editorType === 'wysiwyg' && wujieeSaveRichSelection()"
                 @mouseenter="wujieeShowTooltip($event, item === 'image' && wujieeIsUploadingImage ? wujieeResolvedLabels.uploadingImage : wujieeResolvedLabels[wujieeToolbarLabelKeys[item]])"
                 @mouseleave="wujieeHideTooltip"

@@ -113,6 +113,100 @@ describe('MarkdownEditor', () => {
     expect(emitted).not.toContain('**')
   })
 
+  it('reflects the selected heading state and toggles it back to a paragraph', async () => {
+    const execCommand = vi.fn(() => true)
+    Object.defineProperty(document, 'execCommand', { configurable: true, value: execCommand })
+    const wrapper = mount(MarkdownEditor, {
+      attachTo: document.body,
+      props: { modelValue: '## 标题', editorType: 'wysiwyg' }
+    })
+    const editor = wrapper.get('.wujiee-md-rich-editor')
+    const headingText = editor.get('h2').element.firstChild!
+    const range = document.createRange()
+    range.selectNodeContents(headingText)
+    window.getSelection()!.removeAllRanges()
+    window.getSelection()!.addRange(range)
+    await editor.trigger('mouseup')
+
+    const headingButton = wrapper.get('button[aria-label="标题"]')
+    expect(headingButton.classes()).toContain('wujiee-md-is-active')
+    expect(headingButton.attributes('aria-pressed')).toBe('true')
+
+    await headingButton.trigger('mousedown')
+    await headingButton.trigger('click')
+    expect(execCommand).toHaveBeenCalledWith('formatBlock', false, 'p')
+
+    wrapper.unmount()
+    Reflect.deleteProperty(document, 'execCommand')
+  })
+
+  it('exits a code block after Enter on its empty last line', async () => {
+    const wrapper = mount(MarkdownEditor, {
+      attachTo: document.body,
+      props: { modelValue: '', editorType: 'wysiwyg', valueFormat: 'html' }
+    })
+    const editor = wrapper.get('.wujiee-md-rich-editor')
+    editor.element.innerHTML = '<pre>const value = 1\n</pre>'
+    const codeText = editor.get('pre').element.firstChild!
+    const range = document.createRange()
+    range.setStart(codeText, codeText.textContent!.length)
+    range.collapse(true)
+    window.getSelection()!.removeAllRanges()
+    window.getSelection()!.addRange(range)
+    await editor.trigger('mouseup')
+    await editor.trigger('keydown', { key: 'Enter' })
+
+    expect(editor.get('pre').element.nextElementSibling?.tagName).toBe('P')
+    expect(editor.get('pre').element.nextElementSibling?.querySelector('br')).not.toBeNull()
+
+    wrapper.unmount()
+  })
+
+  it('toggles task-list, inline-code and link formatting from the active selection', async () => {
+    const execCommand = vi.fn(() => true)
+    Object.defineProperty(document, 'execCommand', { configurable: true, value: execCommand })
+    const wrapper = mount(MarkdownEditor, {
+      attachTo: document.body,
+      props: { modelValue: '', editorType: 'wysiwyg', valueFormat: 'html' }
+    })
+    const editor = wrapper.get('.wujiee-md-rich-editor')
+    editor.element.innerHTML = '<ul><li class="wujiee-md-task-list-item"><input type="checkbox" disabled> 任务</li></ul><p><code>代码</code>和<a href="https://wujiee.com">链接</a></p>'
+
+    const selectNode = async (node: Node) => {
+      const range = document.createRange()
+      range.selectNodeContents(node)
+      window.getSelection()!.removeAllRanges()
+      window.getSelection()!.addRange(range)
+      await editor.trigger('mouseup')
+    }
+
+    await selectNode(editor.get('li').element.lastChild!)
+    const taskButton = wrapper.get('button[aria-label="任务列表"]')
+    expect(taskButton.classes()).toContain('wujiee-md-is-active')
+    await taskButton.trigger('mousedown')
+    await taskButton.trigger('click')
+    expect(editor.find('input[type="checkbox"]').exists()).toBe(false)
+    expect(execCommand).toHaveBeenCalledWith('insertUnorderedList')
+
+    await selectNode(editor.get('code').element.firstChild!)
+    const codeButton = wrapper.get('button[aria-label="行内代码"]')
+    expect(codeButton.classes()).toContain('wujiee-md-is-active')
+    await codeButton.trigger('mousedown')
+    await codeButton.trigger('click')
+    expect(editor.find('code').exists()).toBe(false)
+
+    await selectNode(editor.get('a').element.firstChild!)
+    const linkButton = wrapper.get('button[aria-label="链接"]')
+    expect(linkButton.classes()).toContain('wujiee-md-is-active')
+    await linkButton.trigger('mousedown')
+    await linkButton.trigger('click')
+    expect(editor.find('a').exists()).toBe(false)
+    expect(editor.text()).toContain('链接')
+
+    wrapper.unmount()
+    Reflect.deleteProperty(document, 'execCommand')
+  })
+
   it('edits Markdown source while emitting HTML storage format', async () => {
     const wrapper = mount(MarkdownEditor, {
       props: {
