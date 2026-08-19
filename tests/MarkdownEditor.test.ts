@@ -281,6 +281,18 @@ describe('MarkdownEditor', () => {
     expect(wrapper.emitted('image-uploaded')?.length).toBe(1)
   })
 
+  it('does not render a file input when image support is disabled', () => {
+    const wrapper = mount(MarkdownEditor, {
+      props: {
+        modelValue: '',
+        toolbarConfig: { image: false }
+      }
+    })
+
+    expect(wrapper.find('button[aria-label="上传图片"]').exists()).toBe(false)
+    expect(wrapper.find('input[type="file"]').exists()).toBe(false)
+  })
+
   it('adds a Markdown table from the table toolbar button', async () => {
     const wrapper = mount(MarkdownEditor, { props: { modelValue: '', mode: 'edit' } })
     await wrapper.get('button[aria-label="表格"]').trigger('click')

@@ -148,6 +148,7 @@ const wujieeResolvedLabels = computed<EditorLabels>(() => ({
 const wujieeMarkdownValue = computed(() => wujieeProps.valueFormat === 'html' ? convertWujieeHtmlToMarkdown(wujieeProps.modelValue) : wujieeProps.modelValue)
 const wujieeRenderedHtml = computed(() => renderWujieeMarkdown(wujieeMarkdownValue.value))
 const wujieeCharacterCount = computed(() => countWujieeMarkdownCharacters(wujieeMarkdownValue.value))
+const wujieeImageEnabled = computed(() => wujieeProps.toolbar.includes('image') && wujieeProps.toolbarConfig.image !== false)
 const wujieeVisibleToolbar = computed(() => wujieeProps.toolbar.filter(item => wujieeProps.toolbarConfig[item] !== false))
 const wujieeVisibleViewModes = computed(() => (['edit', 'split', 'preview'] as EditorMode[])
   .filter(mode => wujieeProps.toolbarConfig[mode] !== false))
@@ -851,7 +852,7 @@ function wujieeFileAsDataUrl(file: File): Promise<string> {
 }
 
 function wujieeTriggerImagePicker(): void {
-  if (wujieeProps.disabled || wujieeProps.readonly || wujieeIsUploadingImage.value) return
+  if (!wujieeImageEnabled.value || wujieeProps.disabled || wujieeProps.readonly || wujieeIsUploadingImage.value) return
   if (wujieeProps.editorType === 'wysiwyg') wujieeSaveRichSelection()
   if (wujieeFileInput.value) {
     wujieeFileInput.value.value = ''
@@ -860,6 +861,7 @@ function wujieeTriggerImagePicker(): void {
 }
 
 async function wujieeHandleImageFile(event: Event): Promise<void> {
+  if (!wujieeImageEnabled.value) return
   const file = (event.target as HTMLInputElement).files?.[0]
   if (!file) return
 
@@ -963,7 +965,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="wujiee-md" :class="wujieeRootClasses" :data-theme="theme === 'auto' ? undefined : theme" :style="wujieeEditorStyle">
-    <input ref="wujieeFileInput" class="wujiee-md-file-input" type="file" :accept="imageAccept" tabindex="-1" @change="wujieeHandleImageFile">
+    <input v-if="wujieeImageEnabled" ref="wujieeFileInput" class="wujiee-md-file-input" type="file" :accept="imageAccept" tabindex="-1" @change="wujieeHandleImageFile">
 
     <div v-if="showToolbar" class="wujiee-md-toolbar" role="toolbar" :aria-label="ariaLabel">
       <div class="wujiee-md-toolbar__formatting">
